@@ -1,4 +1,4 @@
-package com.quobix.gsb.test;
+package test;
 
 import com.quobix.gsb.engine.util.MD5Hasher;
 import com.quobix.gsb.engine.util.MD5HasherImpl;

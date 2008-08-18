@@ -114,7 +114,7 @@ public class SessionImpl implements GSBSession {
 			/* get server response */
 			String serverResponse = GSBRemote.returnRequest(queryURL);
 			
-			System.out.println(serverResponse);
+			//System.out.println(serverResponse);
 			
 			/* check if update */
 			if(parser.isUpdate(serverResponse)) {
