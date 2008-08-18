@@ -1,4 +1,4 @@
-package com.quobix.gsb.test;
+package test;
 
 import java.net.URL;
 
