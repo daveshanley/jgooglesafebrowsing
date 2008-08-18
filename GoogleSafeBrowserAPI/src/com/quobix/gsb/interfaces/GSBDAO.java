@@ -11,6 +11,10 @@ public interface GSBDAO {
 	
 	public HashMap<String, ListURL> readMalwarelist(GSBEngineConfiguration config) throws GSBException;
 	
+	public boolean locateBlacklistHash(String hash) throws GSBException;
+	
+	public boolean locateMalwareHash(String hash) throws GSBException;
+	
 	public void updateBlacklist(HashMap<String, ListURL> list, GSBEngineConfiguration config) throws GSBException;
 	
 	public void updateMalwarelist(HashMap<String, ListURL> list, GSBEngineConfiguration config) throws GSBException;
