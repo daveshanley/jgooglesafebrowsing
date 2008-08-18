@@ -219,5 +219,52 @@ public abstract class JDBCDAO implements GSBDAO {
 	public void setHost(String host) {
 		this.host = host;
 	}
+	
+	public boolean locateBlacklistHash(String hashValue) throws GSBException {
+		
+		try {
+			
+			Connection connection = DriverManager.getConnection(this.connectionURL, this.user, this.pass);
+			Statement statement = connection.createStatement();
+			String query = "select * from blacklist where hash = \"" + hashValue + "\"";
+			ResultSet result = statement.executeQuery(query);
+			
+			while(result.next()) {
+				
+				return true;
+			} 
+			
+			connection.close();
+			return false;
+			
+		} catch (SQLException exp) {
+			
+			throw new GSBException("Unable to read blacklist: " + exp.getMessage());
+		}
+		
+		
+	}
+
+	public boolean locateMalwareHash(String hashValue) throws GSBException {
+		try {
+			
+			Connection connection = DriverManager.getConnection(this.connectionURL, this.user, this.pass);
+			Statement statement = connection.createStatement();
+			String query = "select * from malware where hash = \"" + hashValue + "\"";
+			ResultSet result = statement.executeQuery(query);
+			
+			while(result.next()) {
+				
+				return true;
+			} 
+			
+			connection.close();
+			return false;
+			
+		} catch (SQLException exp) {
+			
+			throw new GSBException("Unable to read blacklist: " + exp.getMessage());
+		}
+	}
 
 }

@@ -21,6 +21,7 @@ import com.quobix.gsb.interfaces.GSBParser;
 import com.quobix.gsb.interfaces.GSBSession;
 import com.quobix.gsb.model.CheckURL;
 import com.quobix.gsb.model.ConfigImpl;
+import com.quobix.gsb.model.JDBCDAO;
 import com.quobix.gsb.model.ListURL;
 import com.quobix.gsb.model.SessionImpl;
 
@@ -54,18 +55,31 @@ public class GoogleSafeBrowser implements GSBEngine {
 		/* update lists */
 		this.updateBlacklist();
 		
-		/* create URLUtils (most of this logic was written by ...*/
+		/* create URLUtils (most of this logic was written by Henrik Sjostrand*/
 		URLUtils urlutils = new URLUtils();
-		
 		ArrayList<CheckURL> urls = urlutils.getLookupURLs(url);
-		HashMap<String, ListURL> blacklistDataMap = this.getBlacklistURLDataMap();
 		
-		if(checkDataMap(urls, blacklistDataMap)) { 
-			return true;
-		}
+		/* check the DAO being used, if its a JDBC DAO then we can speed things up a little by a direct query */
+		if(this.dao instanceof JDBCDAO) {
+			
+			for(CheckURL checkURL : urls) {
+				
+				if(this.dao.locateBlacklistHash(checkURL.getMD5Hash()) || this.dao.locateMalwareHash(checkURL.getMD5Hash())) {
+					return true;
+				}
+			}
+			
+			return false;
+		} else {
+			
+			HashMap<String, ListURL> blacklistDataMap = this.getBlacklistURLDataMap();
 		
-		return false;
+			if(checkDataMap(urls, blacklistDataMap)) { 
+				return true;
+			}
 		
+			return false;
+		}	
 	}
 	
 	public boolean isMalwarelisted(String url) throws GSBException {
@@ -73,18 +87,31 @@ public class GoogleSafeBrowser implements GSBEngine {
 		/* update lists */
 		this.updateMalwarelist();
 		
-		/* create URLUtils (most of this logic was written by ...*/
+		/* create URLUtils (most of this logic was written by Henrik Sjostrand) */
 		URLUtils urlutils = new URLUtils();
-		
 		ArrayList<CheckURL> urls = urlutils.getLookupURLs(url);
-		HashMap<String, ListURL> malwareDataMap = this.getMalwareURLDataMap();
 		
-		if(checkDataMap(urls, malwareDataMap)) { 
-			return true;
+		/* check the DAO being used, if its a JDBC DAO then we can speed things up a little by a direct query */
+		if(this.dao instanceof JDBCDAO) {
+			
+			for(CheckURL checkURL : urls) {
+				
+				if(this.dao.locateBlacklistHash(checkURL.getMD5Hash()) || this.dao.locateMalwareHash(checkURL.getMD5Hash())) {
+					return true;
+				}
+			}
+			
+			return false;
+		
+		} else {
+			HashMap<String, ListURL> malwareDataMap = this.getMalwareURLDataMap();
+		
+			if(checkDataMap(urls, malwareDataMap)) { 
+				return true;
+			}
+		
+			return false;
 		}
-		
-		return false;
-		
 	}
 	
 	private HashMap<String, ListURL> getBlacklistURLDataMap() throws GSBException {
@@ -106,16 +133,32 @@ public class GoogleSafeBrowser implements GSBEngine {
 		
 		/* create URLUtils (most of this logic was written by ...*/
 		URLUtils urlutils = new URLUtils();
-		
 		ArrayList<CheckURL> urls = urlutils.getLookupURLs(url);
-		HashMap<String, ListURL> blacklistDataMap = this.getBlacklistURLDataMap();
-		HashMap<String, ListURL> malwareDataMap = this.getMalwareURLDataMap();
 		
-		if(checkDataMap(urls, blacklistDataMap) || checkDataMap(urls, malwareDataMap)) { 
-			return true;
+		/* check the DAO being used, if its a JDBC DAO then we can speed things up a little by a direct query */
+		if(this.dao instanceof JDBCDAO) {
+			
+			for(CheckURL checkURL : urls) {
+				
+				if(this.dao.locateBlacklistHash(checkURL.getMD5Hash()) || this.dao.locateMalwareHash(checkURL.getMD5Hash())) {
+					return true;
+				}
+			}
+			
+			return false;
+			
+		} else {	
+			
+			
+			HashMap<String, ListURL> blacklistDataMap = this.getBlacklistURLDataMap();
+			HashMap<String, ListURL> malwareDataMap = this.getMalwareURLDataMap();
+		
+			if(checkDataMap(urls, blacklistDataMap) || checkDataMap(urls, malwareDataMap)) { 
+				return true;
+			}
+		
+			return false;
 		}
-		
-		return false;
 	}
 	
 	private boolean checkDataMap(ArrayList<CheckURL> urls, HashMap<String, ListURL> dataMap) {

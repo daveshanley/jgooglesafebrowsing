@@ -218,4 +218,14 @@ public class FileDAO implements GSBDAO {
 
 	}
 
+	public boolean locateBlacklistHash(String hash) throws GSBException {
+		/* not implemented, use readBlacklist() */
+		return false;
+	}
+
+	public boolean locateMalwareHash(String hash) throws GSBException {
+		/* not implemented use readMalwarelist(); */
+		return false;
+	}
+
 }
