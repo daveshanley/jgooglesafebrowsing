@@ -66,7 +66,6 @@ public class ConfigImpl implements GSBEngineConfiguration {
 
 	public void setPropertiesFile(String properties) {
 		this.properties = properties;
-			
 	}
 
 	public void useKey(boolean useKey) {

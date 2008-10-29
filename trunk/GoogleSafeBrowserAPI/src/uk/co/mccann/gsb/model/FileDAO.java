@@ -2,7 +2,6 @@ package uk.co.mccann.gsb.model;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,7 +13,7 @@ import uk.co.mccann.gsb.interfaces.GSBEngineConfiguration;
 
 /**
  * FileDAO
- * Imple
+ * Implement flat file based storage (slower but still just as good).
  *
  * <h4>Copyright and License</h4>
  * This code is copyright (c) McCann Erickson Advertising Ltd, 2008 except where

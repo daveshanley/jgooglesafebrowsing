@@ -1,29 +1,18 @@
 package uk.co.mccann.gsb.engine;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TimerTask;
 
-import uk.co.mccann.gsb.engine.util.AbstractParser;
-import uk.co.mccann.gsb.engine.util.GSBRemote;
 import uk.co.mccann.gsb.engine.util.URLUtils;
 import uk.co.mccann.gsb.exceptions.GSBException;
 import uk.co.mccann.gsb.interfaces.GSBDAO;
 import uk.co.mccann.gsb.interfaces.GSBEngine;
 import uk.co.mccann.gsb.interfaces.GSBEngineConfiguration;
-import uk.co.mccann.gsb.interfaces.GSBParser;
 import uk.co.mccann.gsb.interfaces.GSBSession;
 import uk.co.mccann.gsb.model.CheckURL;
 import uk.co.mccann.gsb.model.ConfigImpl;
 import uk.co.mccann.gsb.model.JDBCDAO;
 import uk.co.mccann.gsb.model.ListURL;
-import uk.co.mccann.gsb.model.MySQLDAO;
 import uk.co.mccann.gsb.model.SessionImpl;
 
 /**
@@ -79,8 +68,7 @@ public class GoogleSafeBrowser implements GSBEngine {
 	
 	private GSBEngineConfiguration config;
 	private GSBSession session;
-	private HashMap<String, ListURL> malwareMap, blacklistMap;
-	
+	//private HashMap<String, ListURL> malwareMap, blacklistMap;
 	
 	/**
 	 * Set up and create new instance of GoogleSafeBrowser
@@ -182,8 +170,6 @@ public class GoogleSafeBrowser implements GSBEngine {
 		
 		URLUtils urlutils = new URLUtils();
 		ArrayList<CheckURL> urls = urlutils.getLookupURLs(url);
-		
-		CheckURL testurl = new CheckURL(url);
 		
 		/* check the DAO being used, if its a JDBC DAO then we can speed things up a little by a direct query */
 		if(this.dao instanceof JDBCDAO) {

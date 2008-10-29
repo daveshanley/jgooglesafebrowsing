@@ -19,8 +19,6 @@ public class GoogleSafeBrowserTest extends TestCase {
 			GSBEngine gsb = new GoogleSafeBrowser("ABQIAAAASLrZjKKtpkYBuMqs772DCBSA_VeHu55BV3vkfe17EL-cc12nLQ", "/tmp/gsb/", false);
 			GSBDAO fileDao = new MySQLDAO("root", "", "localhost", "googlesafebrowsing");
 			
-			GSBDAO fileDao = new FileDAO();
-			
 			gsb.registerDAO(fileDao);
 			
 			gsb.updateMalwarelist();
@@ -31,6 +29,9 @@ public class GoogleSafeBrowserTest extends TestCase {
 			//assertTrue(gsb.isDangerous("http://baran-eblan.info/sutra/in.cgi?8&parameter=lyrics+for+when+you+believe+by+whitney+houston"));
 			
 		
+			GSBScheduler scheduler = new GSBScheduler(gsb);
+			scheduler.startSchedule(1);
+			
 			
 		} catch (Exception exp) {
 			exp.printStackTrace();

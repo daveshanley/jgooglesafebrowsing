@@ -1,7 +1,5 @@
 package uk.co.mccann.gsb.interfaces;
 
-import java.net.URL;
-
 /**
  * GSBURL
  * Represents a URL within the API.
