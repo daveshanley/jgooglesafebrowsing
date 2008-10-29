@@ -1,8 +1,9 @@
 package test;
 
-import com.quobix.gsb.engine.util.MD5Hasher;
-import com.quobix.gsb.engine.util.MD5HasherImpl;
-import com.quobix.gsb.interfaces.Hashable;
+import uk.co.mccann.gsb.engine.util.MD5Hasher;
+import uk.co.mccann.gsb.engine.util.MD5HasherImpl;
+import uk.co.mccann.gsb.interfaces.Hashable;
+
 
 import junit.framework.TestCase;
 

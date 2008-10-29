@@ -2,7 +2,8 @@ package test;
 
 import java.net.URL;
 
-import com.quobix.gsb.engine.util.GSBRemote;
+import uk.co.mccann.gsb.engine.util.GSBRemote;
+
 
 import junit.framework.TestCase;
 
