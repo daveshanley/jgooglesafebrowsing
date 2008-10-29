@@ -15,6 +15,11 @@ package uk.co.mccann.gsb.exceptions;
  */
 public class GSBException extends Exception {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 849397795677717752L;
+
 	public GSBException() {
 		super();
 	}
