@@ -2,14 +2,15 @@ package test;
 
 import java.util.HashMap;
 
-import com.quobix.gsb.engine.util.AbstractParser;
-import com.quobix.gsb.exceptions.GSBException;
-import com.quobix.gsb.interfaces.GSBDAO;
-import com.quobix.gsb.interfaces.GSBEngineConfiguration;
-import com.quobix.gsb.interfaces.GSBParser;
-import com.quobix.gsb.model.ConfigImpl;
-import com.quobix.gsb.model.FileDAO;
-import com.quobix.gsb.model.ListURL;
+import uk.co.mccann.gsb.engine.util.AbstractParser;
+import uk.co.mccann.gsb.exceptions.GSBException;
+import uk.co.mccann.gsb.interfaces.GSBDAO;
+import uk.co.mccann.gsb.interfaces.GSBEngineConfiguration;
+import uk.co.mccann.gsb.interfaces.GSBParser;
+import uk.co.mccann.gsb.model.ConfigImpl;
+import uk.co.mccann.gsb.model.FileDAO;
+import uk.co.mccann.gsb.model.ListURL;
+
 
 import junit.framework.TestCase;
 
