@@ -79,7 +79,6 @@ public static void main(String[] args) throws Exception{
 }
 }}}
 
-If you have any problems or any questions, or you want to contribute to the project then you can email me at <david.shanley@europe.mccann.com>
+If you have any problems or any questions, or you want to contribute to the project then you can email me at <dave@quobix.com>
 
 - Dave Shanley
-McCann Erickson Advertising Ltd
