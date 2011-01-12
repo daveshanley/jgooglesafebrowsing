@@ -19,54 +19,69 @@ import org.apache.commons.logging.LogFactory;
 import com.buildabrand.gsb.exception.GSBException;
 import com.buildabrand.gsb.model.CheckURL;
 
+/**
+ * URLUtils
+ * Canonicalisation and processing of URL's to be matched in database.
+ *
+ * <h4>Copyright and License</h4>
+ * This code is copyright (c) Buildabrand Ltd, 2011 except where
+ * otherwise stated. It is released as
+ * open-source under the Creative Commons NC-SA license. See
+ * <a href="http://creativecommons.org/licenses/by-nc-sa/2.5/">http://creativecommons.org/licenses/by-nc-sa/2.5/</a>
+ * for license details. This code comes with no warranty or support.
+ *
+ * @author Dave Shanley <dave@buildabrand.com>
+ */
 public class URLUtils {
 	
 	protected final Log logger = LogFactory.getLog(getClass());
 	
-	private static final String FILL = ""; // The object we insert into the hashmaps
-	private static final String ENCODING = "UTF-8";
-	private static char[] hexChar = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-	private static final int minLineLength = 33; // A valid line contains at least 33 characters (1 operator, 32 MD5 hash)
 	private static UrlEncoder codec = new UrlEncoder();
 	private static String IPValidation = "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$";
+	private static URLUtils instance;
+	
+	/* singleton */
+	private URLUtils() {}
+	
+	public static URLUtils getInstance() {
+		if(instance==null) {
+			instance = new URLUtils();
+		}
+		return instance;
+	}
+	
 	
 	/** Unscapes a string repeatedly to remove all escaped characters. Returns null if the string is invalid.
-	 * @author Henrik Sjostrand, Netvouz, http://www.netvouz.com/, info@netvouz.com
 	 * @param url
 	 * @return
 	 * @throws GSBException
 	 */
 	private String unescape(String url) throws GSBException {
 		
-		
-		
 		if (url == null)
 			return null;
 
-		// Because URLDecoder chokes on some invalid URLs (those containing a percent sign not 
-		// followed by a hex value) we need to check we're not processing such a URL.
 		StringBuffer text1 = new StringBuffer(url);
-		int p = 0;
-		
-		
 		url = text1.toString();
 
 		String text2 = url;
 		
-			int i=0;
-			for(int x = 0; x < 50; x++) {
+			for(int x = 0; x < 50; x++) { // keep iterating to make sure all those encodings are killed.
 				
 				text2 = codec.decode(text2); // Unescape repeatedly until no more percent signs left
 			}	
-				//logger.debug("decoded URL: " + text2);
 		
-		
-		logger.debug("returning URL: " + text2);
+			logger.debug("returning URL: " + text2);
 		
 		return text2;
 	}
 	
-	public String decodeHost(String host) {
+	/**
+	 * Decode a host, If it is a hostname, return it, if it is an IP decode (encoding, including octal & hex)
+	 * @param host
+	 * @return
+	 */
+	private String decodeHost(String host) {
 		
 		try {
 			InetAddress addr = InetAddress.getByName(host);
@@ -91,34 +106,27 @@ public class URLUtils {
 		}
 		
 	}
+		
 	
-
-	
-	
-	/** Returns the canonicalized form of a URL, core logic written by Henrik Sjostrand
-	 * @author Henrik Sjostrand, Netvouz, http://www.netvouz.com/, info@netvouz.com
+	/** Returns the canonicalized form of a URL, core logic written by Henrik Sjostrand, heavily modified for v2 by Dave Shanley.
+	 * @author Henrik Sjostrand, Netvouz, http://www.netvouz.com/, info@netvouz.com & Dave Shanley <dave@buildabrand.com>
 	 * @param queryURL
 	 * @return
 	 * @throws GSBException
 	 */
-	
 	public String canonicalizeURL(String queryURL) throws GSBException, Exception{
-		
-		//queryURL = URIUtil.decode(queryURL);
 		
 		if (queryURL == null)
 			return null;
 
 		String url = queryURL;
-		//System.out.println("Original       : " + url);
-
+		
 		try {
-			// Create a URL object and extract the fields we need
 			
 			/* first of all extract the components of the URL to make sure that it has a protocol! */
 			if(url.indexOf("http://") <=-1 && url.indexOf("https://")<=-1) url = "http://"+url;
 			
-			url = url.replaceAll("[\\t\\n\\r\\f\\e]*", ""); // replace all whitespace
+			url = url.replaceAll("[\\t\\n\\r\\f\\e]*", ""); // replace all whitespace and escape characters.
 			
 			URL theURL = new URL(url);
 			String host = theURL.getHost();
@@ -128,23 +136,18 @@ public class URLUtils {
 			if(protocol==null||protocol.isEmpty()) protocol = "http";
 			int port = theURL.getPort();
 			String user = theURL.getUserInfo();
-
-			//
-			// 2. Process the hostname
-			// 
-			// 2a. Unescape until no more hex-encodings
 			
+			/* escape host */
 			logger.debug("pre-escaped host:  " + host);
 			host = unescape(host);
 			logger.debug("post-escaped host:  " + host);
 			
+			/* decode host / IP */
 			host = decodeHost(host);
 			logger.debug("decoded host:  " + host);
 			
-			
 		
-			// 2b. Escape non-standard characters (escape once).
-			// Note: When escaping the hostname we have less characters allowed unescaped
+			/* escape non standard characters for host */
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < host.length(); i++) {
 				char c = host.charAt(i);
@@ -155,56 +158,41 @@ public class URLUtils {
 			}
 			host = sb.toString();
 
-			// 2c. Remove leading and trailing dots 
+			/* remove leading and trailing dots */
 			while (host.startsWith("."))
 				host = host.substring(1);
 			while (host.endsWith("."))
 				host = host.substring(0, host.length() - 1);
 
-			// 2d. Replace consecutive dots with a single dot
+			/* replace consecutive dots with a single dot */
 			int p = 0;
 			while ((p = host.indexOf("..")) != -1)
 				host = host.substring(0, p + 1) + host.substring(p + 2);
 
-			
-
-			// 2f. Add trailing slash if path is empty
+			/* add a trailing slash if the path is empty */
 			if ("".equals(path))
 				host = host + "/";
 			
-			
+			/* find and replace any dodgy decoded escape characters */
 			Pattern pattern =  Pattern.compile("([a-z]{1})([0-9]{2})");
-			 
-		       Matcher matcher = pattern.matcher(host);
-		       String val = "$2";
-		       while (matcher.find()) {
-	               logger.debug(":::TEXT FOUND "+  matcher.group() + " tarting at " +
-	                   "index " +  matcher.start() + "  and ending at index " + matcher.end());
+			Matcher matcher = pattern.matcher(host);
+		    String val = "$2";
+		    while (matcher.find()) {
+		    	logger.debug(":::TEXT FOUND "+  matcher.group() + " tarting at index " +  matcher.start() + "  and ending at index " + matcher.end());
 	               host = matcher.replaceAll(val);
-	              
-	               logger.debug("::TEXT " + host);
-		       }
+	              logger.debug("::TEXT " + host);
+		    }
 			
-			
-			
-			
-		       host = host.replaceAll("(?i)%5C", "%");
+			/* replace any encoded percentage signs */
+		    host = host.replaceAll("(?i)%5C", "%");
 		       
-			
-		       logger.debug("post-processed host:  " + host);
-			
-			//
-			// Process the path
-			//
-			// 3a. Unescape until no more hex-encodings
-			logger.debug("pre-escaped path:  " + path);
-			
+			/* unescape path to remove all hex encodings */
+		    logger.debug("pre-escaped path:  " + path);
 			path = unescape(path);
-			
 			logger.debug("post-escaped path:  " + path);
 			
 			
-			/*
+			
 			// 3b. Remove consecutive slashes from path
 			while ((p = path.indexOf("//")) != -1)
 				path = path.substring(0, p + 1) + path.substring(p + 2);
@@ -221,21 +209,13 @@ public class URLUtils {
 				p = previousSlash;
 			}
 			
-			while ((p = path.indexOf("/..")) != -1) {
-				int previousSlash = path.lastIndexOf("/", p-1);
-				// if (previousSlash == -1) previousSlash = 0; // If path begins with /../
-				path = path.substring(0, previousSlash) + path.substring(p + 3);
-				p = previousSlash;
-			}
 			
 			
 			
 			
-			*/
 			
 			
-
-			
+			/* use URI class to normalise the URL */
 			URI uri = null;
 			try {
 				
@@ -256,51 +236,47 @@ public class URLUtils {
 						uri = new URI(protocol, user, unescape(host), -1, path, query, null);
 						logger.debug(uri.normalize().getPath().toString() + " <-- normalised path after error debug");
 					}
+				
 				} catch (URISyntaxException e) {
 					
-					// total fail.
+					// total fail, forget it.
 				}
 			}
 			
-			
+			/* only use URI normalized URL if it's not a total failure */
 			if(uri!=null && !uri.normalize().getPath().toString().trim().isEmpty()) {
 				logger.debug("normalized path is: empty!");
 				path = uri.normalize().getPath().toString();
 			}  
 				
+			/* debug code */
 			logger.debug("post-cleaned path:  " + path);
 			logger.debug("post-processed host:  " + host);
 			
 			
-			
-			
-			// 3d. Escape once
+			/* escape the path */
 			path = escape(path);
-			path = path.replaceAll("[;]*", ""); // replace all semi-colons
 			
+			/* replace all semi-colons */
+			path = path.replaceAll("[;]*", ""); 
 			
-			// 
-			// Process the query
-			//
-			// 4a. Unescape until no more hex-encodings
+			/* unescape the query */
 			query = unescape(query);
 
-			// 4b. Escape once
+			/* re-escape the query */
 			query = escape(query);
 
-			//
-			// Rebuild the URL
-			//
+			
+			/* re-assemble the URL */
 			sb.setLength(0);
 			sb.append(protocol + ":");
 		
 			sb.append("//");
 			if (user != null)
 				sb.append(user + "@");
-			
-			
-			
+		
 			if (port != -1) {
+				
 				/* remove slash from host */
 				logger.debug("removing last slash: " + host.lastIndexOf("/",host.length()));
 				
@@ -325,12 +301,8 @@ public class URLUtils {
 			if (query != null)
 				sb.append("?" + query);
 			
-		
-		
 			url = sb.toString();
 			
-			
-
 			logger.debug("canonicalised url is:  " + url);
 			
 			
@@ -360,11 +332,7 @@ public class URLUtils {
 			if (c == ' ')
 				sb.append("%20");
 			else if (c <= 32 || c >= 127 || c == '%') {
-				//try {
-					sb.append(codec.encode(String.valueOf(c)));
-				//} catch (UnsupportedEncodingException e) {
-				//	throw new GSBException("escapeUTF8: Could not encode character " + c + " at position " + i + " in " + url + ". ErrMsg=" + e.toString());
-				//}
+					sb.append(codec.encode(String.valueOf(c))); // replace crappy URLDecoder form v1 with something a little more useful.
 			} else
 				sb.append(c);
 		}
@@ -372,7 +340,7 @@ public class URLUtils {
 	}
 	
 	/** Parses the query URL into several different url strings, each of which should be looked up 
-	 * @author Henrik Sjostrand, Netvouz, http://www.netvouz.com/, info@netvouz.com
+	 * @author Henrik Sjostrand, Netvouz, http://www.netvouz.com/, info@netvouz.com & Dave Shanley <dave@buildabrand.com>
 	 * @param queryURL
 	 * @return
 	 */
