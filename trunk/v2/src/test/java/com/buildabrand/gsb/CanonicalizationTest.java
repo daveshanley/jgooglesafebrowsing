@@ -2,25 +2,17 @@ package com.buildabrand.gsb;
 
 import static org.junit.Assert.*;
 
-import java.net.InetAddress;
-import java.net.URI;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.codec.net.URLCodec;
-import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import com.buildabrand.gsb.util.URLUtils;
-import com.buildabrand.gsb.util.UrlEncoder;
 
-
-
-
-
-
+/**
+ * Test Canonicalisation
+ * @author Dave Shanley
+ *
+ */
 public class CanonicalizationTest {
 	
 	protected final Log logger = LogFactory.getLog(getClass());
@@ -29,13 +21,9 @@ public class CanonicalizationTest {
 	public void testURLCanoniconialization() {
 		
 		try {
-			
-			
-		  
-	       
-	       URLUtils utils = new URLUtils();
-	       
-	    	        
+		   
+	       URLUtils utils = URLUtils.getInstance();
+	               
 	        assertEquals("http://host/%25",utils.canonicalizeURL("http://host/%25%32%35"));
 			assertEquals("http://host/%25%25",utils.canonicalizeURL("http://host/%25%32%35%25%32%35"));
 			assertEquals("http://host/%25",utils.canonicalizeURL("http://host/%2525252525252525"));
@@ -67,7 +55,7 @@ public class CanonicalizationTest {
 			assertEquals("http://host.com/twoslashes?more//slashes",utils.canonicalizeURL("http://host.com//twoslashes?more//slashes"));
 			assertEquals("http://what%20youtalking.com/there?value=moo",utils.canonicalizeURL("http://what youtalking.....com/there?value=moo#there"));
 			assertEquals("http://host.com/what/",utils.canonicalizeURL("http://host.com/what/do/../think/.."));
-			
+			assertEquals("http://host.com/what/do/hello",utils.canonicalizeURL("http://host.com/what/do/./think/../hello"));
 			
 			
 		} catch (Exception exp) {

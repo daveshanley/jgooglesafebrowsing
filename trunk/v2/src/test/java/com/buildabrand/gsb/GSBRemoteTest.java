@@ -68,5 +68,31 @@ public class GSBRemoteTest {
 		
 	}
 	
+	@Test
+	public void GSBRemoteDownloadRequest() {
+		
+		try {
+		
+			URL url1 = new URL("http://safebrowsing.clients.google.com/safebrowsing/downloads?client=api&apikey="+apiKey+"&appver=2.0&pver=2.2");
+			String response = GSBRemote.returnRequest(url1, "goog-malware-shavar;\n");
+			assertNotNull(response);
+			
+		} catch (GSBNotAuthorizedException exp) {
+			
+			fail("failure: " + exp.getMessage());
+			
+		} catch (GSBException exp) {
+		
+			fail("failure: " + exp.getMessage());
+		
+		} catch (Exception exp) {
+		
+			fail("failure: " + exp.getMessage());
+		
+		}
+		
+		
+	}
+	
 	
 }
