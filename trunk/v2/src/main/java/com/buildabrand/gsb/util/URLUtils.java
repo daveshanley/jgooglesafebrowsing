@@ -191,29 +191,21 @@ public class URLUtils {
 			path = unescape(path);
 			logger.debug("post-escaped path:  " + path);
 			
-			
-			
-			// 3b. Remove consecutive slashes from path
+			/* remove double slashes from path  */
 			while ((p = path.indexOf("//")) != -1)
 				path = path.substring(0, p + 1) + path.substring(p + 2);
 
-			// 3b. Remove /./ occurences from path
+			/* remove /./ occurences from path */
 			while ((p = path.indexOf("/./")) != -1)
 				path = path.substring(0, p + 1) + path.substring(p + 3);
 
-			// 3c. Resolve /../ occurences in path
+			/* resolve /../ occurences in path */
 			while ((p = path.indexOf("/../")) != -1) {
 				int previousSlash = path.lastIndexOf("/", p-1);
 				// if (previousSlash == -1) previousSlash = 0; // If path begins with /../
 				path = path.substring(0, previousSlash) + path.substring(p + 3);
 				p = previousSlash;
 			}
-			
-			
-			
-			
-			
-			
 			
 			/* use URI class to normalise the URL */
 			URI uri = null;
